@@ -1,28 +1,37 @@
 import { generateRequestParameter } from "../utils/index";
 import type {
   InitiatePaymentParams,
-  PaymentResponse,
+  InitiatePaymentResponse,
   RequestParams,
 } from "../types";
 
-export function initiatePayment(
+export const initiatePayment = (
   merchantCode: string,
   secretKey: string,
   baseUrl: string,
   paymentParams: InitiatePaymentParams
-): PaymentResponse {
-  const requestQueryParams = generateRequestParameter(
-    merchantCode,
-    secretKey,
-    paymentParams
-  );
+): InitiatePaymentResponse => {
+  try {
+    const requestQueryParams = generateRequestParameter(
+      merchantCode,
+      secretKey,
+      paymentParams
+    );
 
-  const url = new URL(baseUrl);
-  Object.entries(requestQueryParams).forEach(([key, value]) => {
-    if (value) {
-      url.searchParams.append(key, value as keyof RequestParams);
+    if (!requestQueryParams || typeof requestQueryParams !== "object") {
+      throw new Error("Failed to generate request parameters.");
     }
-  });
 
-  return { url: url.toString() };
-}
+    const url = new URL(baseUrl);
+    Object.entries(requestQueryParams).forEach(([key, value]) => {
+      if (value) {
+        url.searchParams.append(key, value as keyof RequestParams);
+      }
+    });
+
+    return { url: url.toString() };
+  } catch (error) {
+    console.error("Error initiating payment:", error);
+    throw new Error("Payment initiation failed.");
+  }
+};

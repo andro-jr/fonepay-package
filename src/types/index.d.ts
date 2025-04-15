@@ -7,18 +7,26 @@ export type InitiatePaymentParams = {
   currency?: string; // CRN parameter, defaults to NPR if not provided
 };
 
-export type VerifyPaymentParams = {
-  [key: string]: string; // or a more structured type
-  hash: string;
+export type FonepayResponse = {
+  PRN: string;
+  PID: string;
+  PS: string;
+  RC: string;
+  UID: string;
+  BC: string;
+  INI: string;
+  P_AMT: string;
+  R_AMT: string;
+  DV: string;
 };
 
-export type PaymentResponse = {
+export type InitiatePaymentResponse = {
   url: string;
 };
 
 export type FonepayClient = {
-  initiatePayment: (params: InitiatePaymentParams) => PaymentResponse;
-  //   verifyResponse: (response: VerifyPaymentParams) => boolean;
+  initiatePayment: (params: InitiatePaymentParams) => InitiatePaymentResponse;
+  verifyResponse: (response: FonepayResponse) => boolean;
 };
 
 export type RequestParamKeys =

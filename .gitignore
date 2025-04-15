@@ -4,6 +4,7 @@ node_modules/
 # Build output
 dist/
 build/
+/src/**/*.js     # Ignore any JS files in src directory since they are compiled outputs
 
 # TypeScript cache
 *.tsbuildinfo

@@ -50,6 +50,7 @@ export const generateRequestParameter = (
     DV: "",
   };
 
+  // Order defined by the fonepay itself
   const orderedKeys = [
     "PID",
     "MD",
@@ -61,6 +62,7 @@ export const generateRequestParameter = (
     "R2",
     "RU",
   ];
+
   const concatenatedValues = orderedKeys
     .map((key) => requestParams[key as keyof RequestParams])
     .join(",");
