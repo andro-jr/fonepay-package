@@ -1,0 +1,28 @@
+{
+  "name": "fonepay-package",
+  "version": "1.0.0",
+  "description": "A package for integrating with Fonepay payment gateway.",
+  "scripts": {
+    "build": "tsc",
+    "lint": "eslint .",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm test && npm run lint"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/andro-jr/fonepay-package"
+  },
+  "keywords": [
+    "fonepay",
+    "payment",
+    "integration",
+    "npm-package"
+  ],
+  "author": "Prabin Pant",
+  "license": "ISC",
+  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e",
+  "devDependencies": {
+    "@types/node": "^22.14.1",
+    "typescript": "^5.8.3"
+  }
+}
