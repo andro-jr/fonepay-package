@@ -1,4 +1,8 @@
-import type { InitiatePaymentParams, FonepayClient, FonepayResponse } from "../types";
+import type {
+  InitiatePaymentParams,
+  FonepayClient,
+  FonepayResponse,
+} from "../types/index";
 import { initiatePayment } from "../core/initiatePayment";
 import { verifyResponse } from "../core/verifyResponse";
 

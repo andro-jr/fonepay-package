@@ -3,7 +3,7 @@ import type {
   InitiatePaymentParams,
   InitiatePaymentResponse,
   RequestParams,
-} from "../types";
+} from "../types/index";
 
 export const initiatePayment = (
   merchantCode: string,

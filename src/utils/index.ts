@@ -1,5 +1,5 @@
 import crypto from "crypto";
-import type { InitiatePaymentParams, RequestParams } from "../types";
+import type { InitiatePaymentParams, RequestParams } from "../types/index";
 
 export const generateDate = (): string => {
   const date = new Date();

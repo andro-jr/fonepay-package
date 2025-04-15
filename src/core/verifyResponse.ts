@@ -1,6 +1,6 @@
 import crypto from "crypto";
-import type { FonepayResponse } from "../types";
-import { generateHmacSha512 } from "../utils";
+import type { FonepayResponse } from "../types/index";
+import { generateHmacSha512 } from "../utils/index";
 
 export function verifyResponse(
   response: FonepayResponse,
