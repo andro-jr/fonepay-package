@@ -1,5 +1,5 @@
 {
-  "name": "@andro-jr/fonepay",
+  "name": "fonepay-node",
   "version": "1.0.0",
   "description": "A package for integrating with Fonepay payment gateway.",
   "scripts": {
