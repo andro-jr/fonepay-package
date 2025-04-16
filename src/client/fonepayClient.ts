@@ -9,7 +9,7 @@ import { verifyResponse } from "../core/verifyResponse";
 export function createClient(
   merchantCode: string,
   secretKey: string,
-  baseUrl: string = "https://dev-client.fonepay.com/api"
+  baseUrl: string = "https://dev-clientapi.fonepay.com/api/merchantRequest"
 ): FonepayClient {
   if (!merchantCode) throw new Error("Fonepay merchantCode is required");
   if (!secretKey) throw new Error("Fonepay secretKey is required");

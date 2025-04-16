@@ -40,7 +40,7 @@ export const generateRequestParameter = (
   const requestParams: RequestParams = {
     PID: merchantCode,
     PRN: prn,
-    MD: merchantCode,
+    MD: "P", // P - Payment
     AMT: amt,
     CRN: currency || "NPR",
     DT: dt,
