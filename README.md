@@ -34,30 +34,31 @@ const paymentResponse = fonepay.initiatePayment({
 
 // Redirect user to payment page if successful
 if (paymentResponse.success) {
-  window.location.href = paymentResponse.url;
+  // Redirect the user to the payment URL: url is obtained from the paymentResponse as url i.e paymentResponse.url
 }
 
 // On your backend API endpoint (returnUrl), verify the payment
 // Example using Express.js
 app.get("/api/payment/verify", (req, res) => {
   // Fonepay will redirect to this URL with query parameters
-
   const queryData = req.query;
 
+  // If you are using ts typecast the values to string,
   const fonepayResponse = {
-    PRN: queryData.PRN as string,
-    PID: queryData.PID as string,
-    PS: queryData.PS as string,
-    RC: queryData.RC as string,
-    UID: queryData.UID as string,
-    BC: queryData.BC as string,
-    INI: queryData.INI as string,
-    P_AMT: queryData.P_AMT as string,
-    R_AMT: queryData.R_AMT as string,
-    DV: queryData.DV as string,
+    PRN: queryData.PRN,
+    PID: queryData.PID,
+    PS: queryData.PS,
+    RC: queryData.RC,
+    UID: queryData.UID,
+    BC: queryData.BC,
+    INI: queryData.INI,
+    P_AMT: queryData.P_AMT,
+    R_AMT: queryData.R_AMT,
+    DV: queryData.DV,
   };
 
   const isValid = fonepay.verifyResponse(fonepayResponse);
+  // const isValid = fonepay.verifyResponse(req.query as any); you can pass the query data directly
 
   if (isValid) {
     // Payment is verified
