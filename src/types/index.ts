@@ -104,3 +104,16 @@ export type RequestParamKeys =
  * Represents the fonepay request param object with request param keys and value.
  */
 export type RequestParams = Record<RequestParamKeys, string | number>;
+
+/**
+ * Constants used throughout the package
+ */
+export const PAYMENT_MODE = {
+  PAYMENT: 'P'
+} as const;
+
+export const RESPONSE_CODE = {
+  SUCCESSFUL: 'successful'
+} as const;
+
+export const DEFAULT_CURRENCY = 'NPR';

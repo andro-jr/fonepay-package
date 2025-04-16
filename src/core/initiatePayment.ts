@@ -7,11 +7,11 @@ import type {
 
 /**
  * Core function to initiate a payment request with Fonepay
- * 
+ *
  * This function takes the merchant credentials and payment parameters,
  * generates the required request parameters including security verification,
  * and returns a URL that can be used to redirect users to the Fonepay payment page.
- * 
+ *
  * @param merchantCode - The merchant code provided by Fonepay
  * @param secretKey - The secret key for request verification
  * @param baseUrl - The Fonepay API base URL
@@ -26,6 +26,15 @@ export const initiatePayment = (
   paymentParams: InitiatePaymentParams
 ): InitiatePaymentResponse => {
   try {
+    // Validate baseUrl
+    let url: URL;
+    try {
+      url = new URL(baseUrl);
+    } catch (error) {
+      throw new Error(`Invalid base URL provided: ${baseUrl}`);
+    }
+
+    // Generate and validate request parameters
     const requestQueryParams = generateRequestParameter(
       merchantCode,
       secretKey,
@@ -33,19 +42,25 @@ export const initiatePayment = (
     );
 
     if (!requestQueryParams || typeof requestQueryParams !== "object") {
-      throw new Error("Failed to generate request parameters.");
+      throw new Error(
+        "Failed to generate request parameters: Invalid response from parameter generator"
+      );
     }
 
-    const url = new URL(baseUrl);
+    // Append parameters to URL with validation
     Object.entries(requestQueryParams).forEach(([key, value]) => {
-      if (value) {
-        url.searchParams.append(key, value as keyof RequestParams);
+      if (value !== undefined && value !== null) {
+        url.searchParams.append(key, String(value));
+      } else {
+        throw new Error(`Required parameter ${key} is missing or invalid`);
       }
     });
 
     return { success: true, url: url.toString() };
   } catch (error) {
-    console.error("Error initiating payment:", error);
-    throw new Error("Payment initiation failed.");
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error occurred";
+    console.error("Error initiating payment:", errorMessage);
+    throw new Error(`Payment initiation failed: ${errorMessage}`);
   }
 };

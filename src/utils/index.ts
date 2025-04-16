@@ -1,5 +1,6 @@
 import crypto from "crypto";
 import type { InitiatePaymentParams, RequestParams } from "../types/index";
+import { PAYMENT_MODE, DEFAULT_CURRENCY } from "../types/index";
 
 /**
  * Generates a date string in the format required by Fonepay (MM/DD/YYYY)
@@ -24,12 +25,18 @@ export const generateHmacSha512 = (
   message: string,
   secretKey: string
 ): string | null => {
+  if (!message || !secretKey) {
+    console.error("Message and secret key are required for HMAC generation");
+    return null;
+  }
+
   try {
     const hmac = crypto.createHmac("sha512", Buffer.from(secretKey, "utf-8"));
     hmac.update(message, "utf-8");
     return hmac.digest("hex");
   } catch (error) {
-    console.error("Exception while hashing using HMAC-SHA-512", error);
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    console.error("Exception while hashing using HMAC-SHA-512:", errorMessage);
     return null;
   }
 };
@@ -53,20 +60,34 @@ export const generateRequestParameter = (
   secretKey: string,
   paymentParams: InitiatePaymentParams
 ): RequestParams => {
+  // Validate required parameters
+  if (!merchantCode) throw new Error("Merchant code is required");
+  if (!secretKey) throw new Error("Secret key is required");
+  if (!paymentParams) throw new Error("Payment parameters are required");
+
+  const { prn, amount, returnUrl, remarks1, remarks2, currency } = paymentParams;
+
+  // Validate payment parameters
+  if (!prn) throw new Error("PRN is required");
+  if (!returnUrl) throw new Error("Return URL is required");
+  if (!remarks1) throw new Error("Remarks1 is required");
+  if (typeof amount !== 'number' || amount <= 0) {
+    throw new Error("Amount must be a positive number");
+  }
+
+  try {
+    new URL(returnUrl);
+  } catch {
+    throw new Error("Invalid return URL format");
+  }
+
   const dt = generateDate();
-  const { prn, amount, returnUrl, remarks1, remarks2, currency } =
-    paymentParams;
-
-  if (!remarks1) throw new Error("remarks1 is required");
-  if (!prn) throw new Error("prn is required");
-  if (!returnUrl) throw new Error("returnUrl is required");
-
   const requestParams: RequestParams = {
     PID: merchantCode,
     PRN: prn,
-    MD: "P", // P - Payment
+    MD: PAYMENT_MODE.PAYMENT,
     AMT: amount,
-    CRN: currency || "NPR",
+    CRN: currency || DEFAULT_CURRENCY,
     DT: dt,
     R1: remarks1,
     R2: remarks2 || "N/A",
@@ -93,9 +114,7 @@ export const generateRequestParameter = (
 
   const hashedValue = generateHmacSha512(concatenatedValues, secretKey);
   if (!hashedValue) {
-    throw new Error(
-      "Failed to generate HMAC-SHA-512 hash for request parameters."
-    );
+    throw new Error("Failed to generate HMAC-SHA-512 hash for request parameters");
   }
   requestParams.DV = hashedValue;
 
