@@ -109,6 +109,8 @@ type InitiatePaymentResponse = {
 
 Verifies the authenticity of a payment response from Fonepay. The response parameters are received as query parameters on your returnUrl endpoint.
 
+> **Note**: You don't need to manually construct the FonepayResponse object. When Fonepay redirects to your returnUrl, all these parameters are automatically provided as query parameters (req.query in Express.js). Simply pass these query parameters to the verifyResponse function.
+
 ```typescript
 type FonepayResponse = {
   PRN: string; // Product Reference Number (original reference you sent)
