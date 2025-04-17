@@ -1,6 +1,6 @@
 {
   "name": "fonepay-node",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "A typescript package for integrating Fonepay payment gateway into your Node.js applications.",
   "scripts": {
     "clean": "rimraf dist",
