@@ -13,7 +13,7 @@
  *   secretKey: 'YOUR_SECRET_KEY',
  *   fonepayBaseUrl: 'FONEPAY_API_URL'
  * });
- * 
+ *
  * // Example of using FonepayResponse type with req.query
  * app.get('/verify', (req, res) => {
  *   const response = req.query as FonepayResponse;
