@@ -13,7 +13,10 @@ yarn add fonepay-node
 ## Usage
 
 ```typescript
-import { createClient } from "fonepay-node";
+import { createClient, FonepayResponse } from "fonepay-node";
+import express from "express";
+
+const app = express();
 
 // Initialize the client
 const fonepay = createClient({
@@ -22,54 +25,79 @@ const fonepay = createClient({
   fonepayBaseUrl: "https://dev-clientapi.fonepay.com/api/merchantRequest", // Use production URL in production
 });
 
-// Initiate a payment
-const paymentResponse = fonepay.initiatePayment({
-  amount: 1000,
-  prn: "UNIQUE_REFERENCE",
-  returnUrl: "https://your-site.com/api/payment/verify", // Your backend API endpoint that will handle the verification
-  remarks1: "Payment for Order #123", // Required
-  remarks2: "Optional detail", // Optional
-  currency: "NPR", // Optional, defaults to NPR
+// Example Express route to initiate payment
+app.post("/api/payment/initiate", async (req, res) => {
+  try {
+    const { amount, orderId, remarks } = req.body;
+
+    // Generate a unique PRN (Product Reference Number)
+    const PRN = `ORDER_${orderId}_${Date.now()}`;
+
+    const paymentResponse = fonepay.initiatePayment({
+      amount: amount,
+      prn: PRN,
+      returnUrl: "https://your-site.com/api/payment/verify", // Your backend API endpoint that will handle the verification
+      remarks1: remarks || `Payment for Order #${orderId}`, // Required
+      remarks2: "Optional detail", // Optional
+      currency: "NPR", // Optional, defaults to NPR
+    });
+
+    if (paymentResponse.success) {
+      // Store PRN in your database to match with verification response later
+      // await Order.update({ id: orderId }, { prn: PRN, status: 'pending' });
+
+      // Return the payment URL to frontend
+      res.json({
+        success: true,
+        paymentUrl: paymentResponse.url,
+      });
+    } else {
+      res.status(400).json({
+        success: false,
+        message: "Failed to initiate payment",
+      });
+    }
+  } catch (error) {
+    console.error("Payment initiation error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
 });
 
-// Redirect user to payment page if successful
-if (paymentResponse.success) {
-  // Redirect the user to the payment URL: url is obtained from the paymentResponse i.e paymentResponse.url
-}
+// Frontend can then redirect to the payment URL
+// window.location.href = response.paymentUrl;
 
 // On your backend API endpoint (returnUrl), verify the payment
-// Example using Express.js
-app.get("/api/payment/verify", (req, res) => {
-  // Fonepay will redirect to this URL with query parameters
-  const queryData = req.query;
+app.get("/api/payment/verify", async (req, res) => {
+  try {
+    // Fonepay will redirect to this URL with query parameters
+    // You can safely typecast req.query to FonepayResponse
+    const paymentResponse = req.query as FonepayResponse;
 
-  // If you are using ts, typecast the values to string,
-  const fonepayResponse = {
-    PRN: queryData.PRN,
-    PID: queryData.PID,
-    PS: queryData.PS,
-    RC: queryData.RC,
-    UID: queryData.UID,
-    BC: queryData.BC,
-    INI: queryData.INI,
-    P_AMT: queryData.P_AMT,
-    R_AMT: queryData.R_AMT,
-    DV: queryData.DV,
-  };
+    const isValid = fonepay.verifyResponse(paymentResponse);
 
-  // you can add your own validation here comparing the PRN in the initiatePayment and the PRN in the response
+    if (isValid) {
+      // Payment is verified successfully
+      const { PRN, UID } = paymentResponse;
+      // Find your order using PRN (the one you stored during payment initiation)
+      // const order = await Order.findOne({ prn: PRN });
 
-  const isValid = fonepay.verifyResponse(fonepayResponse);
-  // const isValid = fonepay.verifyResponse(req.query as FonepayResponse); you can pass the query data directly
+      // Update your order status
+      // await order.update({ status: 'paid', transactionId: UID });
 
-  if (isValid) {
-    // Payment is verified
-    // Update your database
-    // Redirect user to success page
-    res.redirect("/payment/success");
-  } else {
-    // Payment verification failed
-    res.redirect("/payment/failed");
+      // Redirect user to success page
+      res.redirect("/payment/success");
+    } else {
+      // Verification failed - response might be tampered
+      // Log this incident for security purposes
+      console.error("Invalid payment verification:", paymentResponse);
+      res.redirect("/payment/failed"); // add your failure route
+    }
+  } catch (error) {
+    console.error("Payment verification error:", error);
+    res.redirect("/payment/failed"); // add your failure route
   }
 });
 ```
@@ -116,8 +144,8 @@ Verifies the authenticity of a payment response from Fonepay. The response param
 
 ```typescript
 type FonepayResponse = {
-  PRN: string; // Product Reference Number (original reference you sent)
-  PID: string; // Merchant ID / Product ID
+  PRN: string; // Your original Product Reference Number
+  PID: string; // Your Merchant ID
   PS: string; // Payment Status ("success" or "failure")
   RC: string; // Response Code ("successful" for successful payments)
   UID: string; // Unique Transaction ID from Fonepay
@@ -151,6 +179,34 @@ The package includes comprehensive error handling:
 - Amount validation to ensure positive numbers
 - Detailed error messages for debugging
 - Safe handling of cryptographic operations
+
+## Best Practices
+
+1. **PRN (Product Reference Number)**:
+
+   - Generate a unique PRN for each payment
+   - Store it in your database when initiating the payment
+   - Use it to match the payment response with your order
+
+2. **Payment Verification**:
+
+   - Always verify the response using `verifyResponse()` method
+   - Check both `PS` (Payment Status) and `RC` (Response Code)
+   - Store the `UID` as it's useful for reconciliation
+   - Implement proper error handling and logging
+
+3. **Security**:
+
+   - Keep your `secretKey` secure and never expose it in frontend code
+   - Always verify payments on your backend
+   - Log failed verifications for security monitoring
+   - Use HTTPS for your `returnUrl`
+
+4. **Error Handling**:
+   - Implement proper try-catch blocks in your verification endpoint
+   - Log errors with relevant transaction details
+   - Provide meaningful feedback to users
+   - Have fallback error pages/routes
 
 ## Development
 
