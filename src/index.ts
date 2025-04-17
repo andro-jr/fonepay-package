@@ -6,14 +6,21 @@
  *
  * @example
  * ```typescript
- * import { createClient } from 'fonepay-node';
+ * import { createClient, FonepayResponse } from 'fonepay-node';
  *
  * const fonepay = createClient({
  *   merchantCode: 'YOUR_MERCHANT_CODE',
  *   secretKey: 'YOUR_SECRET_KEY',
  *   fonepayBaseUrl: 'FONEPAY_API_URL'
  * });
+ * 
+ * // Example of using FonepayResponse type with req.query
+ * app.get('/verify', (req, res) => {
+ *   const response = req.query as FonepayResponse;
+ *   const isValid = fonepay.verifyResponse(response);
+ * });
  * ```
  */
 
 export { createClient } from "./client/fonepayClient";
+export type { FonepayResponse } from "./types/index";
