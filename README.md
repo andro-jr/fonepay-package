@@ -10,6 +10,61 @@ npm install fonepay-node
 yarn add fonepay-node
 ```
 
+## API Reference
+
+### createClient(params: FonepayClientParams)
+
+Creates a Fonepay client instance with the following parameters:
+
+```typescript
+type FonepayClientParams = {
+  merchantCode: string; // Merchant code provided by Fonepay
+  secretKey: string; // Secret key for request verification
+  fonepayBaseUrl: string; // Fonepay API base URL
+};
+```
+
+### initiatePayment(params: InitiatePaymentParams)
+
+Initiates a payment request and returns a payment URL.
+
+```typescript
+type InitiatePaymentParams = {
+  amount: number; // Amount to be paid
+  prn: string; // Unique Product Reference Number
+  returnUrl: string; // Your backend API endpoint that will receive Fonepay's response
+  remarks1: string; // Required remarks
+  remarks2?: string; // Optional additional remarks
+  currency?: string; // Optional, defaults to NPR
+};
+
+type InitiatePaymentResponse = {
+  url: string; // Payment URL to redirect user to
+  success: boolean; // Whether the URL was generated successfully
+};
+```
+
+### verifyResponse(response: FonepayResponse)
+
+Verifies the authenticity of a payment response from Fonepay. The response parameters are received as query parameters on your returnUrl endpoint.
+
+> **Note**: You don't need to manually construct the FonepayResponse object. When Fonepay redirects to your returnUrl, all these parameters are automatically provided as query parameters (req.query in Express.js). Simply pass these query parameters to the verifyResponse function.
+
+```typescript
+type FonepayResponse = {
+  PRN: string; // Your original Product Reference Number
+  PID: string; // Your Merchant ID
+  PS: string; // Payment Status ("success" or "failure")
+  RC: string; // Response Code ("successful" for successful payments)
+  UID: string; // Unique Transaction ID from Fonepay
+  BC: string; // Bank Code that processed the payment
+  INI: string; // Transaction Initiator
+  P_AMT: string; // Paid Amount
+  R_AMT: string; // Refunded Amount (if any)
+  DV: string; // Digital Verification value for response validation
+};
+```
+
 ## Usage Example
 
 ```typescript
@@ -101,61 +156,6 @@ app.get("/api/payment/verify", async (req, res) => {
     res.redirect("/payment/failed"); // add your failure route
   }
 });
-```
-
-## API Reference
-
-### createClient(params: FonepayClientParams)
-
-Creates a Fonepay client instance with the following parameters:
-
-```typescript
-type FonepayClientParams = {
-  merchantCode: string; // Merchant code provided by Fonepay
-  secretKey: string; // Secret key for request verification
-  fonepayBaseUrl: string; // Fonepay API base URL
-};
-```
-
-### initiatePayment(params: InitiatePaymentParams)
-
-Initiates a payment request and returns a payment URL.
-
-```typescript
-type InitiatePaymentParams = {
-  amount: number; // Amount to be paid
-  prn: string; // Unique Product Reference Number
-  returnUrl: string; // Your backend API endpoint that will receive Fonepay's response
-  remarks1: string; // Required remarks
-  remarks2?: string; // Optional additional remarks
-  currency?: string; // Optional, defaults to NPR
-};
-
-type InitiatePaymentResponse = {
-  url: string; // Payment URL to redirect user to
-  success: boolean; // Whether the URL was generated successfully
-};
-```
-
-### verifyResponse(response: FonepayResponse)
-
-Verifies the authenticity of a payment response from Fonepay. The response parameters are received as query parameters on your returnUrl endpoint.
-
-> **Note**: You don't need to manually construct the FonepayResponse object. When Fonepay redirects to your returnUrl, all these parameters are automatically provided as query parameters (req.query in Express.js). Simply pass these query parameters to the verifyResponse function.
-
-```typescript
-type FonepayResponse = {
-  PRN: string; // Your original Product Reference Number
-  PID: string; // Your Merchant ID
-  PS: string; // Payment Status ("success" or "failure")
-  RC: string; // Response Code ("successful" for successful payments)
-  UID: string; // Unique Transaction ID from Fonepay
-  BC: string; // Bank Code that processed the payment
-  INI: string; // Transaction Initiator
-  P_AMT: string; // Paid Amount
-  R_AMT: string; // Refunded Amount (if any)
-  DV: string; // Digital Verification value for response validation
-};
 ```
 
 ## Important Notes
