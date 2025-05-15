@@ -10,7 +10,7 @@ npm install fonepay-node
 yarn add fonepay-node
 ```
 
-## Usage
+## Usage Example
 
 ```typescript
 import { createClient, FonepayResponse } from "fonepay-node";
@@ -31,10 +31,11 @@ app.post("/api/payment/initiate", async (req, res) => {
     const { amount, orderId, remarks } = req.body;
 
     // Generate a unique PRN (Product Reference Number)
+    // use your own logic to generate a unique PRN --> should be string of 3 to 25 characters
     const PRN = `ORDER_${orderId}_${Date.now()}`;
 
     const paymentResponse = fonepay.initiatePayment({
-      amount: amount,
+      amount: +amount, // should be a number
       prn: PRN,
       returnUrl: "https://your-site.com/api/payment/verify", // Your backend API endpoint that will handle the verification
       remarks1: remarks || `Payment for Order #${orderId}`, // Required
