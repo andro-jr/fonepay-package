@@ -144,16 +144,16 @@ app.get("/api/payment/verify", async (req, res) => {
       // await order.update({ status: 'paid', transactionId: UID });
 
       // Redirect user to success page
-      res.redirect("/payment/success");
+      res.redirect("https://your-site.com/payment/success");
     } else {
       // Verification failed - response might be tampered
       // Log this incident for security purposes
       console.error("Invalid payment verification:", paymentResponse);
-      res.redirect("/payment/failed"); // add your failure route
+      res.redirect("https://your-site.com/payment/failed"); // add your failure route
     }
   } catch (error) {
     console.error("Payment verification error:", error);
-    res.redirect("/payment/failed"); // add your failure route
+    res.redirect("https://your-site.com/payment/failed"); // add your failure route
   }
 });
 ```
