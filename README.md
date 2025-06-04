@@ -31,7 +31,7 @@ Initiates a payment request and returns a payment URL.
 ```typescript
 type InitiatePaymentParams = {
   amount: number; // Amount to be paid
-  prn: string; // Unique Product Reference Number
+  prn: string; // Unique Product Reference Number -> String of 3 to 25 characters
   returnUrl: string; // Your backend API endpoint that will receive Fonepay's response
   remarks1: string; // Required remarks
   remarks2?: string; // Optional additional remarks
@@ -86,8 +86,8 @@ app.post("/api/payment/initiate", async (req, res) => {
     const { amount, orderId, remarks } = req.body;
 
     // Generate a unique PRN (Product Reference Number)
-    // use your own logic to generate a unique PRN --> should be string of 3 to 25 characters
-    const PRN = `ORDER_${orderId}_${Date.now()}`;
+    // Use your own logic to generate a unique PRN --> should be string of 3 to 25 characters
+    const PRN = `${Date.now()}`;
 
     const paymentResponse = fonepay.initiatePayment({
       amount: +amount, // should be a number
@@ -160,16 +160,20 @@ app.get("/api/payment/verify", async (req, res) => {
 
 ## Important Notes
 
-1. The `returnUrl` should be a backend API endpoint (not a frontend route) that can:
+1. On the fonepay test portal, the test payment works only on the Global IME Mobile Banking (as of June 2025). Use dummy details for the test payment.
+
+<img style="display: block; padding-left: 20px; margin-bottom: 20px;" src="./fonepay-test-bank.png" width="600" alt="Fonepay Test Bank">
+
+2. The `returnUrl` should be a backend API endpoint (not a frontend route) that can:
 
    - Receive query parameters from Fonepay's redirect
    - Verify the payment response
    - Update your database with payment status
    - Redirect the user to appropriate success/failure pages
 
-2. Always verify the payment response on your backend before confirming the payment to the user.
+3. Always verify the payment response on your backend before confirming the payment to the user.
 
-3. Store the `PRN` (Product Reference Number) in your database when initiating the payment so you can match it with the response.
+4. Store the `PRN` (Product Reference Number) in your database when initiating the payment so you can match it with the response.
 
 ## Error Handling
 
