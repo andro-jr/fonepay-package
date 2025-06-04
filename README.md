@@ -162,7 +162,7 @@ app.get("/api/payment/verify", async (req, res) => {
 
 1. On the fonepay test portal, the test payment works only on the Global IME Mobile Banking (as of June 2025). Use dummy details for the test payment.
 
-<img style="display: block; padding-left: 20px; margin-bottom: 20px;" src="./fonepay-test-bank.png" width="600" alt="Fonepay Test Bank">
+<img style="display: block; padding-left: 20px; margin-bottom: 20px;" src="./src/assets/fonepay-test-bank.png" width="600" alt="Fonepay Test Bank">
 
 2. The `returnUrl` should be a backend API endpoint (not a frontend route) that can:
 
