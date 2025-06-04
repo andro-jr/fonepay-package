@@ -54,11 +54,11 @@ Verifies the authenticity of a payment response from Fonepay. The response param
 type FonepayResponse = {
   PRN: string; // Your original Product Reference Number
   PID: string; // Your Merchant ID
-  PS: string; // Payment Status ("success" or "failure")
-  RC: string; // Response Code ("successful" for successful payments)
+  PS: string; // Payment Status true if payment is success and false if payment failed
+  RC: string; // Response Code ("successful" for successful payments | "failed" for failed payments | "cancel" for cancelled payments)
   UID: string; // Unique Transaction ID from Fonepay
   BC: string; // Bank Code that processed the payment
-  INI: string; // Transaction Initiator
+  INI: string; // Initiator user made payment .Value may be “N/A” if value is not available.
   P_AMT: string; // Paid Amount
   R_AMT: string; // Refunded Amount (if any)
   DV: string; // Digital Verification value for response validation
@@ -174,6 +174,8 @@ app.get("/api/payment/verify", async (req, res) => {
 3. Always verify the payment response on your backend before confirming the payment to the user.
 
 4. Store the `PRN` (Product Reference Number) in your database when initiating the payment so you can match it with the response.
+
+5. The package does not handle the cancel response from Fonepay. If needed, you can handle it manually from `FonepayResponse` object with `PS` and `RC` values.
 
 ## Error Handling
 
